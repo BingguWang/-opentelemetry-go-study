@@ -11,7 +11,6 @@ import (
 	jaegerConfig "github.com/uber/jaeger-client-go/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net"
@@ -29,33 +28,23 @@ var (
 	port = flag.String("port", "50051", "The server port")         // 服务的port
 )
 
-//
-//func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
-//	// Create the Jaeger exporter
-//	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url))) // span会被发送到收集器的url
-//	if err != nil {
-//		return nil, err
-//	}
-//	tp := tracesdk.NewTracerProvider(
-//		// Always be sure to batch in production.
-//		tracesdk.WithBatcher(exp),
-//		// Record information about this application in a Resource.
-//		tracesdk.WithResource(resource.NewWithAttributes(
-//			semconv.SchemaURL, // 使用semconv包为资源属性提供常规名称。
-//			semconv.ServiceNameKey.String(srv),
-//			attribute.String("environment", environment),
-//			attribute.Int64("ID", id),
-//		)),
-//	)
-//	return tp, nil
-//}
-
 func main() {
 	addr := net.JoinHostPort(*host, *port)
 	listen, err := net.Listen("tcp", addr)
 	if err != nil {
 		panic(err)
 	}
+
+	//ctx, cancelFunc := context.WithCancel(context.Background())
+	//defer cancelFunc()
+	//tp, err := tracerProvider("http://localhost:14268/api/traces")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//defer func(ctx context.Context) {
+	//	tp.Shutdown(ctx)
+	//}(ctx)
+	//otel.SetTracerProvider(tp)
 
 	// 设置jaeger配置信息
 	cfg := &jaegerConfig.Configuration{
@@ -72,7 +61,7 @@ func main() {
 		},
 		Reporter: &jaegerConfig.ReporterConfig{ //配置客户端如何上报trace信息，所有字段都是可选的
 			LogSpans:           true,
-			LocalAgentHostPort: "localhost:6831", // jaeger本地agent的地址
+			LocalAgentHostPort: "localhost:6831", // jaeger本地agent的地址,span会被send到此agent
 		},
 		//Token配置
 		Tags: []opentracing.Tag{ //设置tag，token等信息可存于此
