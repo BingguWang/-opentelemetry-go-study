@@ -1,2 +1,2 @@
-# -opentelemetry-go-study
+# opentelemetry-go-study
 a simple demo of learning opentelemetry-go
